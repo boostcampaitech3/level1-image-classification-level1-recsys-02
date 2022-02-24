@@ -1,7 +1,6 @@
 # 마스크 착용 상태 분류(나중에 Read.me 잘 정리해서 예쁘게 구성하기!)
 
 ## Folder & File description
-<br>
 **code**: 18 Label 분류 모델 폴더<br>
 **mask**: 마스크 착용 분류 모델 폴더<br>
 **gender**: 성별 분류 모델 폴더<br>
