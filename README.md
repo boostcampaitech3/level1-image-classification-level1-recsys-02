@@ -10,7 +10,7 @@
 ### 파일
 **submission.py**: 모델별 output csv파일을 18개 Label에 맞게 최종 csv파일로 재구성하는 py파일  
 **run.sh**: 3개 모델을 순차적으로 돌리고 최종 산출 output csv파일을 submission에 저장하는 파일  
-**remove.sh**: 지우고 싶은 실험을 한 번에 지우게 하는 파일  
+**remove.sh**: 삭제하고 싶은 실험을 한 번에 삭제하는 파일  
   
 ## 사용법
 ### 전체 실행
