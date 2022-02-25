@@ -2,10 +2,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+weights = torch.FloatTensor([0.1, 0.1, 0.8]).cuda()
 
 # https://discuss.pytorch.org/t/is-this-a-correct-implementation-for-focal-loss-in-pytorch/43327/8
 class FocalLoss(nn.Module):
-    def __init__(self, weight=None,
+    def __init__(self, weight=weights,
                  gamma=2., reduction='mean'):
         nn.Module.__init__(self)
         self.weight = weight
