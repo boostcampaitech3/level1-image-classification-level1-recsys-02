@@ -9,7 +9,7 @@ Mask, Gender, Age 폴더 안에 각각의 모듈들이 들어있습니다.
 ### Crop
 crop 폴더 안의 Save_Crop.ipynb 파일을 실행하면 크롭된 이미지가 각 train, eval 폴더 안에 crop_image 폴더 경로로 저장됨.  
 train_crop.csv와 test_crop.csv가 각각 이미지 파일들의 얼굴 부분 좌표 정보  
-다만 현재 최필규 캠퍼의 이미지 폴더명(female_50)이 매치가 안 되서(라벨링 오류 수정했기 때문) 오류가 날 것.  
+다만 현재 라벨링 오류를 주관적으로 수정한 이미지 폴더명(female->male 등)이 기준이라 본인 폴더명과 매치가 안 되서 오류가 날 것.  
 따라서 crop 폴더 안의 img_path명과 본인의 img_path명을 통일시킬 필요 있음(편하게 하는 방법은 고민해보도록 하겠습니다).
 
 ## 폴더 & 파일
