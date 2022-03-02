@@ -33,6 +33,38 @@ def get_lr(optimizer):
     for param_group in optimizer.param_groups:
         return param_group['lr']
 
+
+# def grid_image(np_images, gts, preds, n=16, shuffle=False):
+#     batch_size = np_images.shape[0]
+#     assert n <= batch_size
+
+#     choices = random.choices(range(batch_size), k=n) if shuffle else list(range(n))
+#     figure = plt.figure(figsize=(12, 18 + 2))  # cautions: hardcoded, 이미지 크기에 따라 figsize 를 조정해야 할 수 있습니다. T.T
+#     plt.subplots_adjust(top=0.8)               # cautions: hardcoded, 이미지 크기에 따라 top 를 조정해야 할 수 있습니다. T.T
+#     n_grid = np.ceil(n ** 0.5)
+#     tasks = ["mask", "gender", "age"]
+#     for idx, choice in enumerate(choices):
+#         gt = gts[choice].item()
+#         pred = preds[choice].item()
+#         image = np_images[choice]
+#         # title = f"gt: {gt}, pred: {pred}"
+#         # gt_decoded_labels = MaskBaseDataset.decode_multi_class(gt)
+#         # pred_decoded_labels = MaskBaseDataset.decode_multi_class(pred)
+#         title = "\n".join([
+#             f"{task} - gt: {gt_label}, pred: {pred_label}"
+#             for gt_label, pred_label, task
+#             in zip(gt, pred, tasks)
+#         ])
+
+#         plt.subplot(n_grid, n_grid, idx + 1, title=title)
+#         plt.xticks([])
+#         plt.yticks([])
+#         plt.grid(False)
+#         plt.imshow(image, cmap=plt.cm.binary)
+
+#     return figure
+
+
 def increment_path(path, exist_ok=False):
     """ Automatically increment path, i.e. runs/exp --> runs/exp0, runs/exp1 etc.
 
@@ -61,12 +93,11 @@ def train(data_dir, model_dir, args):
     device = torch.device("cuda" if use_cuda else "cpu")
 
     # -- dataset
-    dataset_module = getattr(import_module("dataset"), args.dataset)  # default: MaskSplitByProfileDataset
+    dataset_module = getattr(import_module("dataset"), args.dataset)  # default: MaskBaseDataset
     dataset = dataset_module(
         data_dir=data_dir,
-        task=args.task
     )
-    num_classes = dataset.num_classes  # 18
+    num_classes = dataset.num_classes  # 3
 
     # -- augmentation
     transform_module = getattr(import_module("dataset"), args.augmentation)  # default: BaseAugmentation
@@ -166,7 +197,7 @@ def train(data_dir, model_dir, args):
             model.eval()
             val_loss_items = []
             val_acc_items = []
-            figure = None
+            # figure = None
             for val_batch in val_loader:
                 inputs, labels = val_batch
                 inputs = inputs.to(device)
@@ -179,6 +210,13 @@ def train(data_dir, model_dir, args):
                 acc_item = (labels == preds).sum().item()
                 val_loss_items.append(loss_item)
                 val_acc_items.append(acc_item)
+
+                # if figure is None:
+                #     inputs_np = torch.clone(inputs).detach().cpu().permute(0, 2, 3, 1).numpy()
+                #     inputs_np = dataset_module.denormalize_image(inputs_np, dataset.mean, dataset.std)
+                #     figure = grid_image(
+                #         inputs_np, labels, preds, n=16, shuffle=args.dataset != "MaskSplitByProfileDataset"
+                #     )
 
             val_loss = np.sum(val_loss_items) / len(val_loader)
             val_acc = np.sum(val_acc_items) / len(val_set)
@@ -194,6 +232,7 @@ def train(data_dir, model_dir, args):
             )
             logger.add_scalar("Val/loss", val_loss, epoch)
             logger.add_scalar("Val/accuracy", val_acc, epoch)
+            # logger.add_figure("results", figure, epoch)
             print()
 
 
@@ -212,7 +251,7 @@ if __name__ == '__main__':
     parser.add_argument("--resize", nargs="+", type=list, default=[384, 288], help='resize size for image when training')
     parser.add_argument('--batch_size', type=int, default=64, help='input batch size for training (default: 64)')
     parser.add_argument('--valid_batch_size', type=int, default=100, help='input batch size for validing (default: 1000)')
-    parser.add_argument('--model', type=str, default='Resnet18', help='model type (default: BaseModel)')
+    parser.add_argument('--model', type=str, default='BaseModel', help='model type (default: BaseModel)')
     parser.add_argument('--optimizer', type=str, default='SGD', help='optimizer type (default: SGD)')
     parser.add_argument('--lr', type=float, default=1e-3, help='learning rate (default: 1e-3)')
     parser.add_argument('--val_ratio', type=float, default=0.2, help='ratio for validaton (default: 0.2)')
@@ -220,10 +259,9 @@ if __name__ == '__main__':
     parser.add_argument('--lr_decay_step', type=int, default=20, help='learning rate scheduler deacy step (default: 20)')
     parser.add_argument('--log_interval', type=int, default=20, help='how many batches to wait before logging training status')
     parser.add_argument('--name', default='exp', help='model save at {SM_MODEL_DIR}/{name}')
-    parser.add_argument('--task', default='mask')
 
     # Container environment
-    parser.add_argument('--data_dir', type=str, default=os.environ.get('SM_CHANNEL_TRAIN', '/opt/ml/input/data/train/crop_images'))
+    parser.add_argument('--data_dir', type=str, default=os.environ.get('SM_CHANNEL_TRAIN', '/opt/ml/input/data/train/crop_images')) ### crop
     parser.add_argument('--model_dir', type=str, default=os.environ.get('SM_MODEL_DIR', './model'))
 
     args = parser.parse_args()
