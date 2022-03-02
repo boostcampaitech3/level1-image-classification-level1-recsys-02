@@ -10,6 +10,9 @@
 - 한 사람당 사진의 개수: 7 [마스크 착용 5장, 이상하게 착용(코스크, 턱스크) 1장, 미착용 1장]  
 - 이미지 크기: (384, 512)
 
-전체 데이터셋 중에서 60%는 학습 데이터셋으로 활용됩니다.
+전체 데이터셋 중에서 60%는 학습 데이터셋으로 활용됩니다.  
 **입력값**: 마스크 착용 사진, 미착용 사진, 혹은 이상하게 착용한 사진(코스크, 턱스크)  
-예시: <img src="https://github.com/pilkyuchoi/images/blob/ee0bf9cda119c56b2340a5f04a875313cc9b2a33/mask_classification/class_description.png" width="가로 사이즈" height="세로 사이즈">
+예시: <img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask_example.png" width="250" height="300">
+**결과값**: 총 18개의 class를 예측해야합니다. 결과값으로 0~17에 해당되는 숫자가 각 이미지 당 하나씩 나와야합니다.  
+**Class Description**:  
+<img src="https://github.com/pilkyuchoi/images/blob/ee0bf9cda119c56b2340a5f04a875313cc9b2a33/mask_classification/class_description.png" width="700" height="600">
