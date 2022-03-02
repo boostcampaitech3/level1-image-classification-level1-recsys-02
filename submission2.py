@@ -36,11 +36,17 @@ if __name__ == '__main__':
 #파일 불러오기
 mask = pd.read_csv(f'/opt/ml/mask/output/{args.name}.csv')
 
-# gender = pd.read_csv(f'/opt/ml/gender/output/{args.name}.csv')
-gender = pd.read_csv('/opt/ml/gender/output/EfficientNet_b1_adamW_new_focal.csv')
+gender0 = pd.read_csv(f'/opt/ml/gender/output/{args.name}0.csv')
+gender1 = pd.read_csv(f'/opt/ml/gender/output/{args.name}1.csv')
+gender2 = pd.read_csv(f'/opt/ml/gender/output/{args.name}2.csv')
+gender = pd.concat([gender0,gender1])
+gender = pd.concat([gender,gender2])
 
-# age = pd.read_csv(f'/opt/ml/age/output/{args.name}.csv')
-age = pd.read_csv('/opt/ml/age/output/EfficientNet_b1_adamW_new_focal.csv')
+age0 = pd.read_csv(f'/opt/ml/age/output/{args.name}0.csv')
+age1 = pd.read_csv(f'/opt/ml/age/output/{args.name}1.csv')
+age2 = pd.read_csv(f'/opt/ml/age/output/{args.name}2.csv')
+age = pd.concat([age0,age1])
+age = pd.concat([age,age2])
 # age = pd.read_csv(f'/opt/ml/age/output/{args.name}.csv')
 
 #3개 파일 합치기
