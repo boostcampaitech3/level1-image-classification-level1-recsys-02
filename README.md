@@ -20,12 +20,26 @@ pip install -r requirements.txt
 **결과값**: 총 18개의 class를 예측해야합니다. 결과값으로 0~17에 해당되는 숫자가 각 이미지 당 하나씩 나와야합니다.  
 **Class Description**: 마스크 착용여부, 성별, 나이를 기준으로 총 18개의 클래스가 있습니다.  
 <img src="https://github.com/pilkyuchoi/images/blob/ee0bf9cda119c56b2340a5f04a875313cc9b2a33/mask_classification/class_description.png" width="700" height="600">  
-### Model 
-<img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask_classification_model.png">
-
 ### Pre-processing  
 현재 이미지 데이터에는 학습에 불필요한 배경 데이터가 존재합니다. 따라서 얼굴 부분만을 잘라내 사용할 수 있도록 전처리를 진행하였습니다.  
 사진에서 사람 얼굴을 Detection하여 Annotation 정보를 추출한 뒤 해당 영역에 맞추어 이미지를 잘라냈습니다.  
 Detection에는 RetinaFace 라이브러리를 사용했습니다.(tensorflow==2.2.0 필요)  
 preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation 정보가 담긴 csv 파일이 생성되고,
 해당 파일을 바탕으로 crop.ipynb 파일을 실행하면 기존 데이터에서 얼굴 영역을 잘라낸 파일들을 **crop_images** 폴더에 저장합니다.
+### Model (수정 중)
+<img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask_classification_model.png">
+
+### Train
+```bash
+python train.py --task [Task명(mask, gender, age 중 택 1)]
+```
+### Inference
+```bash
+python inference.py --task [Task명(mask, gender, age 중 택 1)]
+```
+### Submission
+```bash
+python submission.py --mask [mask output 파일명] --gender [mask output 파일명] --age [mask output 파일명]
+```
+*Tip: bash 파일(.sh)을 만들어서 python 명령어 여러 줄을 한 번에 실행할 수 있습니다.  
+즉, Mask, Gender, Age 모델을 한 번에 학습시키고 Submission파일을 생성하는 것까지 한 번에 가능합니다.
