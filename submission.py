@@ -37,9 +37,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
 #파일 불러오기
-mask = pd.read_csv(f'/opt/ml/output/{args.mask_name}.csv')
-gender = pd.read_csv(f'/opt/ml/output/{args.gender_name}.csv')
-age = pd.read_csv(f'/opt/ml/output/{args.age_name}.csv')
+mask = pd.read_csv(f'./output/{args.mask}.csv')
+gender = pd.read_csv(f'./output/{args.gender}.csv')
+age = pd.read_csv(f'./output/{args.age}.csv')
 
 #3개 파일 합치기
 df_ = pd.merge(mask,gender, on='ImageID')

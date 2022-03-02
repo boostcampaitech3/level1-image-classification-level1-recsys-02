@@ -256,7 +256,7 @@ class MaskSplitByProfileDataset(MaskBaseDataset):
 
     def __init__(self, data_dir, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246), val_ratio=0.2, task='mask'):
         self.indices = defaultdict(list)
-        super().__init__(data_dir, mean, std, val_ratio)
+        super().__init__(data_dir, mean, std, val_ratio, task)
 
     @staticmethod
     def _split_profile(profiles, val_ratio):

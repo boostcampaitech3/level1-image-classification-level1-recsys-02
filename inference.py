@@ -3,19 +3,20 @@ import os
 from importlib import import_module
 
 import pandas as pd
+import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
 from dataset import TestDataset, MaskBaseDataset
 
 
-def load_model(saved_model, num_classes, device):
+def load_model(saved_model, num_classes, device, i):
     model_cls = getattr(import_module("model"), args.model)
     model = model_cls(
         num_classes=num_classes
     )
 
-    model_path = os.path.join(saved_model, 'best.pth')
+    model_path = os.path.join(saved_model, f'best_{i+1}_fold.pth')
     model.load_state_dict(torch.load(model_path, map_location=device))
 
     return model
@@ -33,34 +34,49 @@ def inference(data_dir, model_dir, output_dir, args):
     device = torch.device("cuda" if use_cuda else "cpu")
 
     num_classes = task_classes[args.task]
-    model = load_model(model_dir, num_classes, device).to(device)
-    model.eval()
-
-    img_root = os.path.join(data_dir, 'images')
-    info_path = os.path.join(data_dir, 'info.csv')
-    info = pd.read_csv(info_path)
-
-    img_paths = [os.path.join(img_root, img_id) for img_id in info.ImageID]
-    dataset = TestDataset(img_paths, args.resize)
-    loader = torch.utils.data.DataLoader(
-        dataset,
-        batch_size=args.batch_size,
-        num_workers=8,
-        shuffle=False,
-        pin_memory=use_cuda,
-        drop_last=False,
-    )
-
+    oof_pred = None
+    n_splits = args.n_splits
     print("Calculating inference results..")
-    preds = []
-    with torch.no_grad():
-        for idx, images in enumerate(loader):
-            images = images.to(device)
-            pred = model(images)
-            pred = pred.argmax(dim=-1)
-            preds.extend(pred.cpu().numpy())
+    #OOF Ensemble
+    for i in range(n_splits):
+        model = load_model(model_dir, num_classes, device, i).to(device)
+        model.eval()
 
-    info['ans'] = preds
+        img_root = os.path.join(data_dir, 'images')
+        info_path = os.path.join(data_dir, 'info.csv')
+        info = pd.read_csv(info_path)
+
+        img_paths = [os.path.join(img_root, img_id) for img_id in info.ImageID]
+        dataset = TestDataset(img_paths, args.resize)
+        loader = torch.utils.data.DataLoader(
+            dataset,
+            batch_size=args.batch_size,
+            num_workers=8,
+            shuffle=False,
+            pin_memory=use_cuda,
+            drop_last=False,
+        )
+
+        preds = []
+        with torch.no_grad():
+            for idx, images in enumerate(loader):
+                images = images.to(device)
+                # TTA
+                pred = model(images) / 2
+                pred += model(torch.flip(images, dims=(-1,))) / 2 # Horizontal_flip
+                # pred = pred.argmax(dim=-1)
+                preds.extend(pred.cpu().numpy())
+
+            fold_pred = np.array(preds)
+        
+        if oof_pred is None:
+            oof_pred = fold_pred / n_splits
+        else:
+            oof_pred += fold_pred / n_splits
+
+    oof_pred = torch.tensor(oof_pred)
+
+    info['ans'] = oof_pred.argmax(dim=-1)
     info.to_csv(os.path.join(output_dir, f'{args.name}.csv'), index=False)
     print(f'Inference Done!')
 
@@ -73,6 +89,7 @@ if __name__ == '__main__':
     parser.add_argument('--resize', type=tuple, default=(96, 128), help='resize size for image when you trained (default: (96, 128))')
     parser.add_argument('--model', type=str, default='Resnet18', help='model type (default: BaseModel)')
     parser.add_argument('--task', default='mask')
+    parser.add_argument('--n_splits', default=5)
 
     # Container environment
     parser.add_argument('--data_dir', type=str, default=os.environ.get('SM_CHANNEL_EVAL', '/opt/ml/input/data/eval'))
