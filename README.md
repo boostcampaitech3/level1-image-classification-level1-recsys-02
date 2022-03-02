@@ -23,7 +23,7 @@ pip install -r requirements.txt
 ### Pre-processing  
 현재 이미지 데이터에는 학습에 불필요한 배경 데이터가 존재합니다. 따라서 얼굴 부분만을 잘라내 사용할 수 있도록 전처리를 진행하였습니다.  
 사진에서 사람 얼굴을 Detection하여 Annotation 정보를 추출한 뒤 해당 영역에 맞추어 이미지를 잘라냈습니다.  
-Detection에는 RetinaFace 라이브러리를 사용했습니다.(tensorflow==2.2.0 필요)  
+Detection에는 RetinaFace 라이브러리를 사용했습니다.(tensorflow==2.2.0 필요, 미처 detect 되지 못한 이미지 약 200장은 사람이 직접 annotate 했습니다.)
 preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation 정보가 담긴 csv 파일이 생성되고,
 해당 파일을 바탕으로 crop.ipynb 파일을 실행하면 기존 데이터에서 얼굴 영역을 잘라낸 파일들을 **crop_images** 폴더에 저장합니다.
 ### Model (수정 중)
