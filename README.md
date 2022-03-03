@@ -39,7 +39,7 @@ python inference.py --task [Task명(mask, gender, age 중 택 1)]
 ```
 ### Out-Of-Fold Ensemble
 ```bash
-python ensemble.py --mask [k-fold 모델들의 아웃풋이 있는 폴더명] --gender [] --age []
+python ensemble.py --mask [k-fold 모델들의 output이 있는 폴더명] --gender [] --age []
 ```
 ### Submission
 ```bash
