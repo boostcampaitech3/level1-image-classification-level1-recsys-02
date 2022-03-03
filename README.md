@@ -1,3 +1,4 @@
+![main](https://user-images.githubusercontent.com/50396533/147069300-5038c779-faa4-404b-b1fd-e9e3896f06b4.png)
 # 마스크 착용 상태 분류
 ## 카메라로 촬영한 사람 얼굴 이미지의 마스크 착용 여부를 판단하는 Task
 ### Overview
@@ -8,42 +9,32 @@
 ```bash
 pip install -r requirements.txt
 ```
-### Dataset
+### Dataset (저작권 이슈로 깃헙 업로드가 불가능합니다)
 마스크를 착용하는 건 COIVD-19의 확산을 방지하는데 중요한 역할을 합니다. 제공되는 이 데이터셋은 사람이 마스크를 착용하였는지 판별하는 모델을 학습할 수 있게 해줍니다. 모든 데이터셋은 아시아인 남녀로 구성되어 있고 나이는 20대부터 70대까지 다양하게 분포하고 있습니다. 간략한 통계는 다음과 같습니다.  
 - 전체 사람 명 수 : 4,500  
 - 한 사람당 사진의 개수: 7 [마스크 착용 5장, 이상하게 착용(코스크, 턱스크) 1장, 미착용 1장]  
 - 이미지 크기: (384, 512)
-
+ 
 전체 데이터셋 중에서 60%는 학습 데이터셋으로 활용됩니다.  
 **입력값**: 마스크 착용 사진, 미착용 사진, 혹은 이상하게 착용한 사진(코스크, 턱스크)  
 <img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask_example.png" width="250" height="300">  
 **결과값**: 총 18개의 class를 예측해야합니다. 결과값으로 0~17에 해당되는 숫자가 각 이미지 당 하나씩 나와야합니다.  
 **Class Description**: 마스크 착용여부, 성별, 나이를 기준으로 총 18개의 클래스가 있습니다.  
-<img src="https://github.com/pilkyuchoi/images/blob/ee0bf9cda119c56b2340a5f04a875313cc9b2a33/mask_classification/class_description.png" width="700" height="600">  
+<img src="https://github.com/pilkyuchoi/images/blob/ee0bf9cda119c56b2340a5f04a875313cc9b2a33/mask_classification/class_description.png" width="700" height="600">   
 ### Pre-processing  
 현재 이미지 데이터에는 학습에 불필요한 배경 데이터가 존재합니다. 따라서 얼굴 부분만을 잘라내 사용할 수 있도록 전처리를 진행하였습니다.  
 사진에서 사람 얼굴을 Detection하여 Annotation 정보를 추출한 뒤 해당 영역에 맞추어 이미지를 잘라냈습니다.  
 Detection에는 RetinaFace 라이브러리를 사용했습니다.(tensorflow==2.2.0 필요, 미처 detect 되지 못한 이미지 약 200장은 사람이 직접 annotate 했습니다)  
 preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation 정보가 담긴 csv 파일이 생성되고,
 해당 파일을 바탕으로 crop.ipynb 파일을 실행하면 기존 데이터에서 얼굴 영역을 잘라낸 파일들을 crop_images 폴더에 저장합니다.
-### Model (수정 중)
+### Model (작성 중)
 <img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask_classification_model.png">
 
-### Train
+### 실제 데이터 적용 예시
+학습된 모델을 실제 데이터에 적용해볼 수 있습니다. 이미지들이 들어있는 데이터 경로를 아래 명령어에 적어주면 됩니다.
 ```bash
-python train.py --task [Task명(mask, gender, age 중 택 1)]
+sh apply.sh 데이터 경로
 ```
-### Inference
-```bash
-python inference.py --task [Task명(mask, gender, age 중 택 1)]
-```
-### Out-Of-Fold Ensemble
-```bash
-python ensemble.py --mask [k-fold 모델들의 output이 있는 폴더명] --gender [] --age []
-```
-### Submission
-```bash
-python submission.py --mask [mask output 파일명] --gender [] --age []
-```
-*Tip: bash 파일(.sh)을 만들어서 python 명령어 여러 줄을 한 번에 실행할 수 있습니다.  
-즉, Mask, Gender, Age 모델을 한 번에 학습시키고 Submission파일을 생성하는 것까지 한 번에 가능합니다.
+실행하고 나면 preds 폴더에 각 이미지들의 예측 라벨이 담긴 csv파일이 저장됩니다.  
+output 폴더에서 각 모델들의 예측 결과를 확인할 수도 있습니다.  
+실제 데이터에 적용한 예시는 다음과 같습니다.
