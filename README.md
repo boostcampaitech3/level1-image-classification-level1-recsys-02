@@ -1,3 +1,4 @@
+![main](https://user-images.githubusercontent.com/50396533/147069300-5038c779-faa4-404b-b1fd-e9e3896f06b4.png)
 # 마스크 착용 상태 분류
 ## 카메라로 촬영한 사람 얼굴 이미지의 마스크 착용 여부를 판단하는 Task
 ### Overview
