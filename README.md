@@ -46,4 +46,4 @@ python ensemble.py --mask [k-fold 모델들의 output이 있는 폴더명] --gen
 python submission.py --mask [mask output 파일명] --gender [] --age []
 ```
 *Tip: bash 파일(.sh)을 만들어서 python 명령어 여러 줄을 한 번에 실행할 수 있습니다.  
-즉, Mask, Gender, Age 모델을 한 번에 학습시키고 Submission파일을 생성하는 것까지 한 번에 가능합니다.
+즉, Mask, Gender, Age 모델을 학습시키고 Submission파일을 생성하는 것까지 한 번에 가능합니다.
