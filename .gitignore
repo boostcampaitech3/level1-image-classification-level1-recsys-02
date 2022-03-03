@@ -1,2 +1,6 @@
 run.sh
-remove.sh
+test.ipynb
+model/
+output/
+submission/
+__pycache/
