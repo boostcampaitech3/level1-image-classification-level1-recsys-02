@@ -64,7 +64,7 @@ def train(data_dir, model_dir, args):
     n_splits = args.n_splits
 
     counter = 0
-    patience = 3
+    patience = 5
     
     # k-fold
     for i in range(n_splits):
