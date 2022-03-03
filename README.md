@@ -21,7 +21,7 @@ python inference.py --model EfficientNet_b1 --name b1_adamw_seed1
 
 cd ../mask
 
-python train.py --model EfficientNet_b1 --epochs 10 --name b1_adamw_seed --optimizer AdamW --criterion label_smoothing --augmentation BaseAugmentation
+python train.py --model EfficientNet_b1 --epochs 10 --name b1_adamw_seed --optimizer AdamW --criterion label_smoothing 
 
 python inference.py --model EfficientNet_b1 --name b1_adamw_seed
 
