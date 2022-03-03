@@ -37,9 +37,13 @@ python train.py --task [Task명(mask, gender, age 중 택 1)]
 ```bash
 python inference.py --task [Task명(mask, gender, age 중 택 1)]
 ```
+### Out-Of-Fold Ensemble
+```bash
+python ensemble.py --mask [k-fold 모델들의 아웃풋이 있는 폴더명] --gender [] --age []
+```
 ### Submission
 ```bash
-python submission.py --mask [mask output 파일명] --gender [mask output 파일명] --age [mask output 파일명]
+python submission.py --mask [mask output 파일명] --gender [] --age []
 ```
 *Tip: bash 파일(.sh)을 만들어서 python 명령어 여러 줄을 한 번에 실행할 수 있습니다.  
 즉, Mask, Gender, Age 모델을 한 번에 학습시키고 Submission파일을 생성하는 것까지 한 번에 가능합니다.
