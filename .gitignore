@@ -4,3 +4,5 @@ model/
 output/
 submission/
 __pycache/
+.gitignore
+.gitattributes
