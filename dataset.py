@@ -130,13 +130,14 @@ class MaskBaseDataset(Dataset):
     gender_labels = []
     age_labels = []
 
-    def __init__(self, data_dir, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246), val_ratio=0.2, task='mask'):
+    def __init__(self, data_dir, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246), val_ratio=0.2, task='mask', n_fold=0):
         self.num_classes = self.task_classes[task]
         self.data_dir = data_dir
         self.mean = mean
         self.std = std
         self.val_ratio = val_ratio
         self.task = task
+        self.n_fold = n_fold
 
         self.transform = None
         self.setup()
@@ -254,16 +255,17 @@ class MaskSplitByProfileDataset(MaskBaseDataset):
         이후 `split_dataset` 에서 index 에 맞게 Subset 으로 dataset 을 분기합니다.
     """
 
-    def __init__(self, data_dir, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246), val_ratio=0.2, task='mask'):
+    def __init__(self, data_dir, mean=(0.548, 0.504, 0.479), std=(0.237, 0.247, 0.246), val_ratio=0.2, task='mask', n_fold=0):
         self.indices = defaultdict(list)
-        super().__init__(data_dir, mean, std, val_ratio, task)
+        super().__init__(data_dir, mean, std, val_ratio, task, n_fold)
 
     @staticmethod
-    def _split_profile(profiles, val_ratio):
+    def _split_profile(profiles, val_ratio, n_fold):
         length = len(profiles)
         n_val = int(length * val_ratio)
 
-        val_indices = set(random.sample(range(length), k=n_val))
+        # val_indices = set(random.sample(range(length), k=n_val))
+        val_indices = set(range(n_val*n_fold, n_val*(n_fold+1)))
         train_indices = set(range(length)) - val_indices
         return {
             "train": train_indices,
@@ -273,7 +275,7 @@ class MaskSplitByProfileDataset(MaskBaseDataset):
     def setup(self):
         profiles = os.listdir(self.data_dir)
         profiles = [profile for profile in profiles if not profile.startswith(".")]
-        split_profiles = self._split_profile(profiles, self.val_ratio)
+        split_profiles = self._split_profile(profiles, self.val_ratio, self.n_fold)
 
         cnt = 0
         for phase, indices in split_profiles.items():

@@ -52,34 +52,6 @@ def increment_path(path, exist_ok=False):
         n = max(i) + 1 if i else 2
         return f"{path}{n}"
 
-def getDataloader(dataset, train_idx, valid_idx, batch_size, num_workers):
-    # 인자로 전달받은 dataset에서 train_idx에 해당하는 Subset 추출
-    train_set = torch.utils.data.Subset(dataset,
-                                        indices=train_idx)
-    # 인자로 전달받은 dataset에서 valid_idx에 해당하는 Subset 추출
-    val_set   = torch.utils.data.Subset(dataset,
-                                        indices=valid_idx)
-    
-    # 추출된 Train Subset으로 DataLoader 생성
-    train_loader = torch.utils.data.DataLoader(
-        train_set,
-        batch_size=batch_size,
-        num_workers=num_workers,
-        drop_last=True,
-        shuffle=True
-    )
-    # 추출된 Valid Subset으로 DataLoader 생성
-    val_loader = torch.utils.data.DataLoader(
-        val_set,
-        batch_size=batch_size,
-        num_workers=num_workers,
-        drop_last=True,
-        shuffle=False
-    )
-    
-    # 생성한 DataLoader 반환
-    return train_loader, val_loader
-
 def train(data_dir, model_dir, args):
     seed_everything(args.seed)
 
@@ -89,43 +61,56 @@ def train(data_dir, model_dir, args):
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
 
-    # -- dataset
-    dataset_module = getattr(import_module("dataset"), args.dataset)  # default: MaskSplitByProfileDataset
-    dataset = dataset_module(
-        data_dir=data_dir,
-        task=args.task
-    )
-    num_classes = dataset.num_classes  
-
-    # -- augmentation
-    transform_module = getattr(import_module("dataset"), args.augmentation)  # default: BaseAugmentation
-    transform = transform_module(
-        resize=args.resize,
-        mean=dataset.mean,
-        std=dataset.std,
-    )
-    dataset.set_transform(transform)
-
     n_splits = args.n_splits
-    skf = StratifiedKFold(n_splits=n_splits)
 
     counter = 0
     patience = 3
-
-    if args.task == 'mask':
-        labels = dataset.mask_labels
-    elif args.task == 'gender':
-        labels = dataset.gender_labels
-    elif args.task == 'age':
-        labels = dataset.age_labels
     
-    for i, (train_idx, valid_idx) in enumerate(skf.split(dataset.image_paths, labels)):
+    # k-fold
+    for i in range(n_splits):
         print(f"{i+1}_fold")
         best_val_acc = 0
         best_val_loss = np.inf
         
-        # -- data loader
-        train_loader, val_loader = getDataloader(dataset, train_idx, valid_idx, batch_size=args.batch_size, num_workers=multiprocessing.cpu_count()//2)
+        # -- dataset
+        dataset_module = getattr(import_module("dataset"), args.dataset)  # default: MaskSplitByProfileDataset
+        dataset = dataset_module(
+            data_dir=data_dir,
+            task=args.task,
+            n_fold=i
+        )
+        num_classes = dataset.num_classes 
+
+        # -- augmentation
+        transform_module = getattr(import_module("dataset"), args.augmentation)  # default: BaseAugmentation
+        transform = transform_module(
+            resize=args.resize,
+            mean=dataset.mean,
+            std=dataset.std,
+        )
+        dataset.set_transform(transform)
+
+        # -- data_loader
+        train_set, val_set = dataset.split_dataset()
+
+        train_loader = DataLoader(
+            train_set,
+            batch_size=args.batch_size,
+            num_workers=multiprocessing.cpu_count()//2,
+            # num_workers=0,
+            shuffle=True,
+            pin_memory=use_cuda,
+            drop_last=True,
+        )
+
+        val_loader = DataLoader(
+            val_set,
+            batch_size=args.valid_batch_size,
+            num_workers=multiprocessing.cpu_count()//2,
+            shuffle=False,
+            pin_memory=use_cuda,
+            drop_last=True,
+        )
 
         # -- model
         model_module = getattr(import_module("model"), args.model)  # default: BaseModel
@@ -207,7 +192,7 @@ def train(data_dir, model_dir, args):
                     val_acc_items.append(acc_item)
 
                 val_loss = np.sum(val_loss_items) / len(val_loader)
-                val_acc = np.sum(val_acc_items) / len(valid_idx)
+                val_acc = np.sum(val_acc_items) / len(val_set)
                 best_val_loss = min(best_val_loss, val_loss)
                 if val_acc > best_val_acc:
                     print(f"New best model for val accuracy : {val_acc:4.2%}! saving the best model..")
@@ -216,10 +201,6 @@ def train(data_dir, model_dir, args):
                     counter = 0
                 else:
                     counter += 1
-                
-                if counter > patience:
-                    print("Early Stopping...")
-                    break
 
                 print(
                     f"[Val] acc : {val_acc:4.2%}, loss: {val_loss:4.2} || "
@@ -227,8 +208,11 @@ def train(data_dir, model_dir, args):
                 )
                 logger.add_scalar("Val/loss", val_loss, epoch)
                 logger.add_scalar("Val/accuracy", val_acc, epoch)
-
                 print()
+
+                if counter > patience:
+                    print("Early Stopping...")
+                    break
 
 
 if __name__ == '__main__':
@@ -247,7 +231,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=64, help='input batch size for training (default: 64)')
     parser.add_argument('--valid_batch_size', type=int, default=100, help='input batch size for validing (default: 1000)')
     parser.add_argument('--model', type=str, default='Resnet18', help='model type (default: BaseModel)')
-    parser.add_argument('--optimizer', type=str, default='SGD', help='optimizer type (default: SGD)')
+    parser.add_argument('--optimizer', type=str, default='AdamW', help='optimizer type (default: SGD)')
     parser.add_argument('--lr', type=float, default=1e-3, help='learning rate (default: 1e-3)')
     parser.add_argument('--val_ratio', type=float, default=0.2, help='ratio for validaton (default: 0.2)')
     parser.add_argument('--criterion', type=str, default='cross_entropy', help='criterion type (default: cross_entropy)')
@@ -258,7 +242,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_splits', default=5)
 
     # Container environment
-    parser.add_argument('--data_dir', type=str, default=os.environ.get('SM_CHANNEL_TRAIN', '/opt/ml/input/data/train/crop_images'))
+    parser.add_argument('--data_dir', type=str, default=os.environ.get('SM_CHANNEL_TRAIN', '/opt/ml/input/data/train/images'))
     parser.add_argument('--model_dir', type=str, default=os.environ.get('SM_MODEL_DIR', './model'))
 
     args = parser.parse_args()

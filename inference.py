@@ -42,7 +42,7 @@ def inference(data_dir, model_dir, output_dir, args):
         model = load_model(model_dir, num_classes, device, i).to(device)
         model.eval()
 
-        img_root = os.path.join(data_dir, 'images')
+        img_root = os.path.join(data_dir, 'crop_images')
         info_path = os.path.join(data_dir, 'info.csv')
         info = pd.read_csv(info_path)
 
@@ -64,20 +64,11 @@ def inference(data_dir, model_dir, output_dir, args):
                 # TTA
                 pred = model(images) / 2
                 pred += model(torch.flip(images, dims=(-1,))) / 2 # Horizontal_flip
-                # pred = pred.argmax(dim=-1)
+                pred = pred.argmax(dim=-1)
                 preds.extend(pred.cpu().numpy())
 
-            fold_pred = np.array(preds)
-        
-        if oof_pred is None:
-            oof_pred = fold_pred / n_splits
-        else:
-            oof_pred += fold_pred / n_splits
-
-    oof_pred = torch.tensor(oof_pred)
-
-    info['ans'] = oof_pred.argmax(dim=-1)
-    info.to_csv(os.path.join(output_dir, f'{args.name}.csv'), index=False)
+        info['ans'] = preds
+        info.to_csv(os.path.join(output_dir, f'{args.name}_{i}_fold.csv'), index=False)
     print(f'Inference Done!')
 
 
@@ -85,8 +76,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     # Data and model checkpoints directories
-    parser.add_argument('--batch_size', type=int, default=1000, help='input batch size for validing (default: 1000)')
-    parser.add_argument('--resize', type=tuple, default=(96, 128), help='resize size for image when you trained (default: (96, 128))')
+    parser.add_argument('--batch_size', type=int, default=64, help='input batch size for validing (default: 1000)')
+    parser.add_argument('--resize', type=tuple, default=[384, 288], help='resize size for image when you trained (default: (96, 128))')
     parser.add_argument('--model', type=str, default='Resnet18', help='model type (default: BaseModel)')
     parser.add_argument('--task', default='mask')
     parser.add_argument('--n_splits', default=5)
@@ -101,7 +92,7 @@ if __name__ == '__main__':
 
     data_dir = args.data_dir
     model_dir = os.path.join(args.model_dir, args.name)
-    output_dir = args.output_dir
+    output_dir = os.path.join(args.output_dir, args.name)
 
     os.makedirs(output_dir, exist_ok=True)
 

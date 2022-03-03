@@ -22,6 +22,26 @@ class FocalLoss(nn.Module):
             reduction=self.reduction
         )
 
+class FocalLoss_mask(nn.Module):
+    weights = torch.FloatTensor([0.2, 0.4, 0.4]).cuda()
+    def __init__(self, weight=None,
+                 gamma=2., reduction='mean'):
+        nn.Module.__init__(self)
+        self.weight = self.weights
+        self.gamma = gamma
+        self.reduction = reduction
+
+    def forward(self, input_tensor, target_tensor):
+        log_prob = F.log_softmax(input_tensor, dim=-1)
+        prob = torch.exp(log_prob)
+        return F.nll_loss(
+            ((1 - prob) ** self.gamma) * log_prob,
+            target_tensor,
+            weight=self.weight,
+            reduction=self.reduction
+        )
+
+
 class FocalLoss_age(nn.Module):
     weights = torch.FloatTensor([0.1, 0.1, 0.8]).cuda()
     def __init__(self, weight=None,
@@ -89,7 +109,8 @@ _criterion_entrypoints = {
     'focal': FocalLoss,
     'label_smoothing': LabelSmoothingLoss,
     'f1': F1Loss,
-    'focal_age': FocalLoss_age
+    'focal_age': FocalLoss_age,
+    'focal_mask': FocalLoss_mask
 }
 
 
