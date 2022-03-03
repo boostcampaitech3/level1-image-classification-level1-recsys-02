@@ -26,7 +26,7 @@ pip install -r requirements.txt
 Detection에는 RetinaFace 라이브러리를 사용했습니다.(tensorflow==2.2.0 필요, 미처 detect 되지 못한 이미지 약 200장은 사람이 직접 annotate 했습니다)  
 preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation 정보가 담긴 csv 파일이 생성되고,
 해당 파일을 바탕으로 crop.ipynb 파일을 실행하면 기존 데이터에서 얼굴 영역을 잘라낸 파일들을 crop_images 폴더에 저장합니다.
-### Model (수정 중)
+### Model 
 <img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask_classification_model.png">
 
 ### Train
