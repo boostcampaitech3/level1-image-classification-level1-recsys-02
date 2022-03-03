@@ -43,3 +43,13 @@ python submission.py --mask [mask output 파일명] --gender [mask output 파일
 ```
 *Tip: bash 파일(.sh)을 만들어서 python 명령어 여러 줄을 한 번에 실행할 수 있습니다.  
 즉, Mask, Gender, Age 모델을 한 번에 학습시키고 Submission파일을 생성하는 것까지 한 번에 가능합니다.
+
+### Pain Point
+분류해야하는 이미지 라벨의 수는 18개이지만, 클래스 간의 불균형이 심한 편입니다.
+<img src="https://github.com/boostcampaitech3/level1-image-classification-level1-recsys-02/blob/jw/images/labels18.png" width="700" height="600"> 
+따라서 이미지 분류 모델을 하나만 사용하지 않고 마스크(mask), 성별(gender), 나이(age) 세 개의 모델을 사용하여 각각 마스크 0,1,2, 성별 0,1, 나이 0,1,2로 분류한 후 추후에 0-18로 변환하였습니다.
+
+<img src="https://github.com/boostcampaitech3/level1-image-classification-level1-recsys-02/blob/jw/images/eachclass.png" width="700" height="600"> 
+마스크의 경우 모든 실험 참여자의 마스크를 잘 쓴 사진이 5장, 마스크를 잘못 쓴 사진이 1장, 마스크를 안 쓴 사진이 1장으로 그 비율이 5:1:1입니다.
+성별의 경우 여성이 많은 편이지만 불균형이 크지 않습니다.
+나이의 경우 60대 이상인 케이스가 매우 적기 때문에 나이 분류모델에 가장 많은 성능 개선이 필요했습니다.
