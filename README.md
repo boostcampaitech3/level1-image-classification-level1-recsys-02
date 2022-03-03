@@ -32,12 +32,12 @@ preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation �
 
 ### Train
 ```bash
-python train.py --task _Task명(mask, gender, age 중 택 1)_
+python train.py --task Task명(mask, gender, age 중 택 1)
 ```
 ### 실제 데이터 적용 예시
-학습된 모델을 실제 데이터에 적용해볼 수 있습니다. apply.sh 파일 속 python 명령어들의 --data_dir 인자에 이미지들이 들어있는 경로를 적어주고 apply.sh를 실행시키면 preds 폴더 안에 각 이미지들의 라벨이 저장된 csv 파일이 생성됩니다.
+학습된 모델을 실제 데이터에 적용해볼 수 있습니다. 이미지들이 들어있는 데이터 경로를 아래 명령어에 적어주면 됩니다.
 ```bash
-sh apply.sh _데이터 경로_
+sh apply.sh 데이터 경로
 ```
 *Tip: bash 파일(.sh)을 만들어서 python 명령어 여러 줄을 한 번에 실행할 수 있습니다.  
 즉, Mask, Gender, Age 모델을 한 번에 학습시키고 Preds 파일을 생성하는 것까지 한 번에 가능합니다.
