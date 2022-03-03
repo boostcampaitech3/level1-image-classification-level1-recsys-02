@@ -13,7 +13,7 @@ pip install -r requirements.txt
 - 전체 사람 명 수 : 4,500  
 - 한 사람당 사진의 개수: 7 [마스크 착용 5장, 이상하게 착용(코스크, 턱스크) 1장, 미착용 1장]  
 - 이미지 크기: (384, 512)
- 
+
 전체 데이터셋 중에서 60%는 학습 데이터셋으로 활용됩니다.  
 **입력값**: 마스크 착용 사진, 미착용 사진, 혹은 이상하게 착용한 사진(코스크, 턱스크)  
 <img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask_example.png" width="250" height="300">  
