@@ -39,5 +39,4 @@ python train.py --task Task명(mask, gender, age 중 택 1)
 ```bash
 sh apply.sh 데이터 경로
 ```
-*Tip: bash 파일(.sh)을 만들어서 python 명령어 여러 줄을 한 번에 실행할 수 있습니다.  
-즉, Mask, Gender, Age 모델을 한 번에 학습시키고 Preds 파일을 생성하는 것까지 한 번에 가능합니다.
+
