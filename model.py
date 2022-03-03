@@ -58,6 +58,10 @@ class Resnet18(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
         resnet18 = models.resnet18(pretrained=True)
+        
+        # print(resnet18)
+
+        resnet18.do = nn.Dropout(0.7)
         resnet18.fc = nn.Linear(in_features=512, out_features=num_classes)
         torch.nn.init.xavier_uniform_(resnet18.fc.weight)
         stdv = 1. /math.sqrt(resnet18.fc.weight.size(1))
