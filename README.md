@@ -30,10 +30,6 @@ preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation �
 ### Model 
 <img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask_classification_model.png">
 
-### Train
-```bash
-python train.py --task Task명(mask, gender, age 중 택 1)
-```
 ### 실제 데이터 적용 예시
 학습된 모델을 실제 데이터에 적용해볼 수 있습니다. 이미지들이 들어있는 데이터 경로를 아래 명령어에 적어주면 됩니다.
 ```bash
