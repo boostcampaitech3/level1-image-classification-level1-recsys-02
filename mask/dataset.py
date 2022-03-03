@@ -32,17 +32,46 @@ class BaseAugmentation:
 class CustomAugmentation:
     def __init__(self, resize, mean, std, **args):
         self.transform = transforms.Compose([
+            # RandomCrop(32, padding=4),
             CenterCrop((224)),
             # Resize(resize, Image.BILINEAR),
+            # RandomRotation(degrees=[-30,30]),
             ColorJitter(0.1, 0.1, 0.1, 0.1),
             ToTensor(),
             Normalize(mean=mean, std=std),
-            # Normalize(mean=(0.5,0.5,0.5), std=(0.2,0.2,0.2)),
-            # AddGaussianNoise()
+            AddGaussianNoise()
         ])
 
     def __call__(self, image):
         return self.transform(image)
+
+class TestAugmentation:
+    def __init__(self, resize, mean, std, **args):
+        self.transform = transforms.Compose([
+            CenterCrop((224)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std),
+        ])
+    
+    def __call__(self, image):
+        return self.transform(image)
+
+
+class AddGaussianNoise(object):
+    '''
+        transform 에 없는 기능들은 __init__, __call__, __repr__ 부분을
+        직접 구현하여 사용할 수 있습니다.
+    '''
+
+    def __init__(self, mean=0, std=1.):
+        self.std = std
+        self.mean = mean
+
+    def __call__(self, tensor):
+        return tensor + torch.randn(tensor.size()) * self.std + self.mean
+
+    def __repr__(self):
+        return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mean, self.std)
 
 class MaskLabels(int, Enum):
     MASK = 0
@@ -214,8 +243,7 @@ class TestDataset(Dataset):
             ColorJitter(0.1, 0.1, 0.1, 0.1),
             ToTensor(),
             Normalize(mean=mean, std=std),
-            # Normalize(mean=(0.5,0.5,0.5), std=(0.2,0.2,0.2)),
-            # AddGaussianNoise()
+            AddGaussianNoise()
         ])
 
     def __getitem__(self, index):

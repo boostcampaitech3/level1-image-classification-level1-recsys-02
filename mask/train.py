@@ -7,6 +7,7 @@ import random
 import re
 from importlib import import_module
 from pathlib import Path
+import torch.nn as nn
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,6 +18,8 @@ from torch.utils.tensorboard import SummaryWriter
 
 from dataset import MaskBaseDataset
 from loss import create_criterion
+from cutmix import CutMixCollator
+from cutmix import CutMixCriterion
 
 
 def seed_everything(seed):
@@ -34,35 +37,36 @@ def get_lr(optimizer):
         return param_group['lr']
 
 
-# def grid_image(np_images, gts, preds, n=16, shuffle=False):
-#     batch_size = np_images.shape[0]
-#     assert n <= batch_size
+def grid_image(np_images, gts, preds, n=16, shuffle=False):
+    batch_size = np_images.shape[0]
+    assert n <= batch_size
 
-#     choices = random.choices(range(batch_size), k=n) if shuffle else list(range(n))
-#     figure = plt.figure(figsize=(12, 18 + 2))  # cautions: hardcoded, 이미지 크기에 따라 figsize 를 조정해야 할 수 있습니다. T.T
-#     plt.subplots_adjust(top=0.8)               # cautions: hardcoded, 이미지 크기에 따라 top 를 조정해야 할 수 있습니다. T.T
-#     n_grid = np.ceil(n ** 0.5)
-#     tasks = ["mask", "gender", "age"]
-#     for idx, choice in enumerate(choices):
-#         gt = gts[choice].item()
-#         pred = preds[choice].item()
-#         image = np_images[choice]
-#         # title = f"gt: {gt}, pred: {pred}"
-#         # gt_decoded_labels = MaskBaseDataset.decode_multi_class(gt)
-#         # pred_decoded_labels = MaskBaseDataset.decode_multi_class(pred)
-#         title = "\n".join([
-#             f"{task} - gt: {gt_label}, pred: {pred_label}"
-#             for gt_label, pred_label, task
-#             in zip(gt, pred, tasks)
-#         ])
+    choices = random.choices(range(batch_size), k=n) if shuffle else list(range(n))
+    figure = plt.figure(figsize=(12, 18 + 2))  # cautions: hardcoded, 이미지 크기에 따라 figsize 를 조정해야 할 수 있습니다. T.T
+    plt.subplots_adjust(top=0.8)               # cautions: hardcoded, 이미지 크기에 따라 top 를 조정해야 할 수 있습니다. T.T
+    n_grid = np.ceil(n ** 0.5)
+    # tasks = ["mask", "gender", "age"]
+    tasks = ["mask"]
+    for idx, choice in enumerate(choices):
+        gt = gts[choice].item()
+        pred = preds[choice].item()
+        image = np_images[choice]
+        # title = f"gt: {gt}, pred: {pred}"
+        # gt_decoded_labels = MaskBaseDataset.decode_multi_class(gt)
+        # pred_decoded_labels = MaskBaseDataset.decode_multi_class(pred)
+        title = "\n".join([
+            f"{task} - gt: {gt_label}, pred: {pred_label}"
+            for gt_label, pred_label, task
+            in zip(gt, pred, tasks)
+        ])
 
-#         plt.subplot(n_grid, n_grid, idx + 1, title=title)
-#         plt.xticks([])
-#         plt.yticks([])
-#         plt.grid(False)
-#         plt.imshow(image, cmap=plt.cm.binary)
+        plt.subplot(n_grid, n_grid, idx + 1, title=title)
+        plt.xticks([])
+        plt.yticks([])
+        plt.grid(False)
+        plt.imshow(image, cmap=plt.cm.binary)
 
-#     return figure
+    return figure
 
 
 def increment_path(path, exist_ok=False):
@@ -111,12 +115,19 @@ def train(data_dir, model_dir, args):
     # -- data_loader
     train_set, val_set = dataset.split_dataset()
 
+    # use cut_mix option
+    if args.use_cutmix:
+        collator = CutMixCollator(0.5)
+    else:
+        collator = torch.utils.data.dataloader.default_collate
+
     train_loader = DataLoader(
         train_set,
         batch_size=args.batch_size,
         num_workers=multiprocessing.cpu_count()//2,
         # num_workers=0,
         shuffle=True,
+        collate_fn=collator,
         pin_memory=use_cuda,
         drop_last=True,
     )
@@ -138,7 +149,12 @@ def train(data_dir, model_dir, args):
     model = torch.nn.DataParallel(model)
 
     # -- loss & metric
-    criterion = create_criterion(args.criterion)  # default: cross_entropy
+    if args.use_cutmix:
+        criterion = CutMixCriterion(reduction='mean')
+    else:
+        criterion = create_criterion(args.criterion)  # default: cross_entropy
+    # criterion = create_criterion(args.criterion)  # default: cross_entropy
+
     opt_module = getattr(import_module("torch.optim"), args.optimizer)  # default: SGD
     optimizer = opt_module(
         filter(lambda p: p.requires_grad, model.parameters()),
@@ -162,22 +178,37 @@ def train(data_dir, model_dir, args):
         for idx, train_batch in enumerate(train_loader):
             inputs, labels = train_batch
             inputs = inputs.to(device)
-            labels = labels.to(device)
+
+            if isinstance(labels, (tuple, list)):
+                labels1, labels2, lam = labels
+                labels = (labels1.to(device), labels2.to(device), lam)
+            else:
+                labels = labels.to(device)
 
             optimizer.zero_grad()
 
             outs = model(inputs)
             preds = torch.argmax(outs, dim=-1)
+            # print('outs',outs.size(), 'label', len(labels))
             loss = criterion(outs, labels)
+
 
             loss.backward()
             optimizer.step()
 
             loss_value += loss.item()
-            matches += (preds == labels).sum().item()
+            
             if (idx + 1) % args.log_interval == 0:
                 train_loss = loss_value / args.log_interval
-                train_acc = matches / args.batch_size / args.log_interval
+                if isinstance(labels, (tuple, list)):
+                    labels1, labels2, lam = labels
+                    correct1 = preds.eq(labels1).sum().item()
+                    correct2 = preds.eq(labels2).sum().item()
+                    train_acc = (lam * correct1 + (1 - lam) * correct2) / inputs.size(0) / args.batch_size / args.log_interval
+                else:
+                    matches += (preds == labels).sum().item()
+                    train_acc = matches / inputs.size(0) / args.batch_size / args.log_interval
+
                 current_lr = get_lr(optimizer)
                 print(
                     f"Epoch[{epoch+1}/{args.epochs}]({idx + 1}/{len(train_loader)}) || "
@@ -192,21 +223,24 @@ def train(data_dir, model_dir, args):
         scheduler.step()
 
         # val loop
+        # criterion = create_criterion(args.criterion)
+        val_criterion = create_criterion(args.criterion)
+
         with torch.no_grad():
             print("Calculating validation results...")
             model.eval()
             val_loss_items = []
             val_acc_items = []
-            # figure = None
+            figure = None
             for val_batch in val_loader:
                 inputs, labels = val_batch
                 inputs = inputs.to(device)
+                # print(labels)
                 labels = labels.to(device)
 
                 outs = model(inputs)
                 preds = torch.argmax(outs, dim=-1)
-
-                loss_item = criterion(outs, labels).item()
+                loss_item = val_criterion(outs, labels).item()
                 acc_item = (labels == preds).sum().item()
                 val_loss_items.append(loss_item)
                 val_acc_items.append(acc_item)
@@ -259,6 +293,8 @@ if __name__ == '__main__':
     parser.add_argument('--lr_decay_step', type=int, default=20, help='learning rate scheduler deacy step (default: 20)')
     parser.add_argument('--log_interval', type=int, default=20, help='how many batches to wait before logging training status')
     parser.add_argument('--name', default='exp', help='model save at {SM_MODEL_DIR}/{name}')
+
+    parser.add_argument('--use_cutmix', type=bool, default=0, help='use cutmix')
 
     # Container environment
     parser.add_argument('--data_dir', type=str, default=os.environ.get('SM_CHANNEL_TRAIN', '/opt/ml/input/data/train/images'))
