@@ -29,7 +29,9 @@ preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation �
 해당 파일을 바탕으로 crop.ipynb 파일을 실행하면 기존 데이터에서 얼굴 영역을 잘라낸 파일들을 crop_images 폴더에 저장합니다.
 ### Model (작성 중)
 <img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask_classification_model.png">
+
 ### Result (작성 중)
+
 ### 실제 데이터 적용 예시
 학습된 모델을 실제 데이터에 적용해볼 수 있습니다. 이미지들이 들어있는 데이터 경로를 아래 명령어에 적어주면 됩니다.
 ```bash
