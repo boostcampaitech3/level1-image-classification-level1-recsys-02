@@ -53,7 +53,7 @@ Data leakage를 방지하기 위해 동일한 사람에 대한 7장의 이미지
 ```bash
 sh apply.sh 데이터 경로
 ```
-실행하고 나면 preds 폴더에 각 이미지들의 예측 라벨이 담긴 csv파일이 저장됩니다.  
+실행하고 나면 preds 폴더에 각 이미지들의 예측 라벨이 담긴 preds.csv파일이 저장됩니다.  
 output 폴더에서 각 모델들의 예측 결과를 확인할 수도 있습니다.  
 새로운 데이터(작성자 본인)에 적용한 예시는 다음과 같습니다.
 |<img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/normal.jpeg" width="100" height="150">|<img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask.jpeg" width="100" height="150">|<img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/incorrect.jpeg" width="100" height="150">|
