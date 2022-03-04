@@ -31,6 +31,8 @@ preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation �
 <img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask_classification_model.png">
 
 ### Result (작성 중)
+|Task|5-Fold|
+|---|Resnet18|EfficientnetB1|EfficientnetB3|
 
 ### 실제 데이터 적용 예시
 학습된 모델을 실제 데이터에 적용해볼 수 있습니다. 이미지들이 들어있는 데이터 경로를 아래 명령어에 적어주면 됩니다.
