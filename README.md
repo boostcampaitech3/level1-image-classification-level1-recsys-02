@@ -32,6 +32,7 @@ preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation �
 
 ### Result (작성 중)
 TASK, Model에 따라 5-Fold Cross Validation 했을 때 나온 Validation Accuracy의 평균값입니다.  
+Data leakage를 방지하기 위해 같은 사람이 Train 데이터셋, Validation 데이터셋 둘 모두에 포함되지 않도록 하였습니다.
 |Task|Resnet18(5-Fold)|EfficientnetB1(5-Fold)|EfficientnetB3(5-Fold)|
 |---|---|---|---|
 |Mask||||
