@@ -32,6 +32,7 @@ preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation �
 학습시 Test 데이터에 대해서 Augementation(HorizontalFlip)을 진행하여 한 데이터에 대해 나온 2개 확률값의 평균을 해당 데이터의 예측 확률로 사용했습니다.  
 3개 Task 모두 pretrained된 모델 classifier 부분에 간단한 MLP를 추가하여 모델링했습니다.  
 사용된 pretrained 모델은 Resnet18, EfficientnetB1, EfficientnetB3입니다.  
+Mask와 Age Task에는 가중치가 다른 Focal Loss를, Gender Task에는 Cross Entropy를 사용했습니다.
 각 모델 1개 별로 Out-Of-Fold Ensemble을 진행했습니다. 5-Fold Cross Validation을 진행한 뒤 도출된 5개의 결과값을 Soft Voting 했습니다.  
 이후 각 Task별로 서로 다른 모델에서 도출된 3개의 결과값을 Hard Voting 했습니다.  
 마지막으로 각 Task의 예측값들의 조합을 구해 18개 라벨로 변환하였습니다.  
