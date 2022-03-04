@@ -41,7 +41,7 @@ Mask와 Age Task에는 가중치가 다른 Focal Loss를, Gender Task에는 Cros
 
 ### Result (작성 중)
 Model, Task에 따라 5-Fold Cross Validation 했을 때 나온 Validation Accuracy의 평균값입니다.  
-Data leakage를 방지하기 위해 같은 사람이 Train 데이터셋, Validation 데이터셋 둘 모두에 포함되지 않도록 하였습니다.
+Data leakage를 방지하기 위해 같은 사람이 Train 데이터셋, Validation 데이터셋 둘 중 하나에만 포함되도록 하였습니다.
 |Model \ Task|Mask|Gender|Age|
 |---|---|---|---|
 |Resnet18(5-Fold)||||
