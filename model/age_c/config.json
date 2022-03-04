@@ -1,0 +1,24 @@
+{
+    "seed": 42,
+    "epochs": 20,
+    "dataset": "MaskSplitByProfileDataset",
+    "augmentation": "CustomAugmentation",
+    "resize": [
+        384,
+        288
+    ],
+    "batch_size": 64,
+    "valid_batch_size": 100,
+    "model": "ResnetCls",
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "val_ratio": 0.2,
+    "criterion": "focal_age",
+    "lr_decay_step": 20,
+    "log_interval": 20,
+    "name": "age_c",
+    "task": "age",
+    "n_splits": 5,
+    "data_dir": "/opt/ml/input/data/train/images",
+    "model_dir": "./model"
+}

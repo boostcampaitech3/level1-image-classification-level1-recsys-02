@@ -1,6 +1,6 @@
 run.sh
 test.ipynb
-model/
 output/
-submission/
+preds/
+test_image/
 __pycache/

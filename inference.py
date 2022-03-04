@@ -39,15 +39,16 @@ def inference(data_dir, model_dir, output_dir, args):
 
     num_classes = task_classes[args.task]
     oof_pred = None
-    info_path = os.path.join(data_dir, 'info.csv')
-    info = pd.read_csv(info_path)
     n_splits = args.n_splits
     print("Calculating inference results..")
-
-    info_path = os.path.join(data_dir, 'info.csv')
-    info = pd.read_csv(info_path)
-    img_root = os.path.join(data_dir, 'crop_images')
-    img_paths = [os.path.join(img_root, img_id) for img_id in info.ImageID]
+    try:
+        info_path = os.path.join(data_dir, 'info.csv')
+        info = pd.read_csv(info_path)
+        img_root = os.path.join(data_dir, 'crop_images')
+        img_paths = [os.path.join(img_root, img_id) for img_id in info.ImageID]
+    except:
+        img_paths = glob(f'{args.data_dir}/*')
+        info = pd.DataFrame({'ImageID':img_paths, 'ans': [0 for _ in range(len(img_paths))]})
 
     #OOF Ensemble
     for i in range(n_splits):
@@ -154,7 +155,7 @@ if __name__ == '__main__':
     output_dir = args.output_dir
 
     if args.model_ensemble:
-        hardvoting(f'output/preds', 'preds')
+        hardvoting(f'preds', 'preds')
 
     elif args.combine:
         combine()
