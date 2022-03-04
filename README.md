@@ -31,7 +31,9 @@ preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation �
 예측해야하는 18개의 라벨이 결국 3개 Task 각 라벨의 조합(3*2*3)이어서 각 Task별로 모델 학습을 진행하였습니다.  
 3개 Task 모두 pretrained된 모델 classifier 부분에 간단한 MLP를 추가하여 모델링했습니다.  
 사용된 pretrained 모델은 Resnet18, EfficientnetB1, EfficientnetB3입니다.  
-각 모델 1개 별로 Out-Of-Fold Ensemble을 진행했습니다. 5-Fold Cross Validation을 진행한 뒤 도출된 5개의 결과값을 Hard Voting 했습니다.
+각 모델 1개 별로 Out-Of-Fold Ensemble을 진행했습니다. 5-Fold Cross Validation을 진행한 뒤 도출된 5개의 결과값을 Soft Voting 했습니다.  
+이후 각 Task별로 서로 다른 모델에서 도출된 3개의 결과값을 Hard Voting 했습니다.  
+마지막으로 각 Task의 예측값들의 조합을 구해 18개 라벨로 변환하였습니다.
 <img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask_classification_model.png">
 
 ### Result (작성 중)
