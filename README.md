@@ -56,3 +56,6 @@ sh apply.sh 데이터 경로
 실행하고 나면 preds 폴더에 각 이미지들의 예측 라벨이 담긴 csv파일이 저장됩니다.  
 output 폴더에서 각 모델들의 예측 결과를 확인할 수도 있습니다.  
 새로운 데이터에 적용한 예시는 다음과 같습니다.
+|<img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/normal.jpeg" width="300" height="500">|<img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask.jpeg" width="300" height="500">|<img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/incorrect.jpeg" width="300" height="500">|
+|---|---|---|
+|Label 0|Label 6|Label 12|
