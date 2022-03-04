@@ -28,7 +28,7 @@ Detection에는 RetinaFace 라이브러리를 사용했습니다.(tensorflow==2.
 preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation 정보가 담긴 csv 파일이 생성되고,
 해당 파일을 바탕으로 crop.ipynb 파일을 실행하면 기존 데이터에서 얼굴 영역을 잘라낸 파일들을 crop_images 폴더에 저장합니다.
 ### Model (작성 중)
-예측해야하는 18개의 라벨이 결국 3개 Task 각 라벨의 조합(3*2*3)이어서 각 Task별로 모델 학습을 진행하였습니다.  
+예측해야하는 18개의 라벨이 결국 3개 Task 각 라벨의 조합(3 * 2 * 3)이어서 각 Task별로 모델 학습을 진행하였습니다.  
 3개 Task 모두 pretrained된 모델 classifier 부분에 간단한 MLP를 추가하여 모델링했습니다.  
 사용된 pretrained 모델은 Resnet18, EfficientnetB1, EfficientnetB3입니다.  
 각 모델 1개 별로 Out-Of-Fold Ensemble을 진행했습니다. 5-Fold Cross Validation을 진행한 뒤 도출된 5개의 결과값을 Soft Voting 했습니다.  
