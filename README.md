@@ -27,7 +27,7 @@ pip install -r requirements.txt
 Detection에는 RetinaFace 라이브러리를 사용했습니다.(tensorflow==2.2.0 필요, 미처 detect 되지 못한 이미지 약 200장은 사람이 직접 annotate 했습니다)  
 preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation 정보가 담긴 csv 파일이 생성되고,
 해당 파일을 바탕으로 crop.ipynb 파일을 실행하면 기존 데이터에서 얼굴 영역을 잘라낸 파일들을 crop_images 폴더에 저장합니다.
-### Model (작성 중)
+### Model
 예측해야하는 18개의 라벨이 결국 3개 Task 각 라벨의 조합(3 * 2 * 3)이어서 각 Task별로 모델 학습을 진행하였습니다.  
 Mask와 Age Task에는 가중치가 다른 Focal Loss를, Gender Task에는 Cross Entropy를 사용했습니다.
 학습시 Test 데이터에 대해서 Augementation(HorizontalFlip)을 진행하여 한 데이터에 대해 나온 2개 확률값의 평균을 해당 데이터의 예측 확률로 사용했습니다.  
@@ -48,7 +48,7 @@ Data leakage를 방지하기 위해 같은 사람이 Train 데이터셋, Validat
 |EfficientnetB1(5-Fold)||||
 |EfficientnetB3(5-Fold)||||
 
-### 새로운 데이터 적용 예시
+### 새로운 데이터 적용 예시 (작성 중)
 학습된 모델을 실제 데이터에 적용해볼 수 있습니다. 이미지들이 들어있는 데이터 경로를 아래 명령어에 적어주면 됩니다.
 ```bash
 sh apply.sh 데이터 경로
