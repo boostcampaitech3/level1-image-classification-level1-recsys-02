@@ -11,6 +11,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from dataset import TestDataset, MaskBaseDataset
+from train import increment_path
 
 
 def load_model(saved_model, num_classes, device, i):
@@ -102,28 +103,6 @@ def hardvoting(data_dir,save_file_name):
 
     df.to_csv(f'{data_dir}/{save_file_name}.csv')
 
-#3개 조합을 0~17숫자로
-def encode_multi_class(mask_label, gender_label, age_label):
-    return mask_label * 6 + gender_label * 3 + age_label
-
-#파일 덮어쓰기 방지
-def increment_path(path, exist_ok=False):
-    """ Automatically increment path, i.e. runs/exp --> runs/exp0, runs/exp1 etc.
-
-    Args:
-        path (str or pathlib.Path): f"{model_dir}/{args.name}".
-        exist_ok (bool): whether increment path (increment if False).
-    """
-    path = Path(path)
-    if (path.exists() and exist_ok) or (not path.exists()):
-        return str(path)
-    else:
-        dirs = glob(f"{path}*")
-        matches = [re.search(rf"%s(\d+)" % path.stem, d) for d in dirs]
-        i = [int(m.groups()[0]) for m in matches if m]
-        n = max(i) + 1 if i else 2
-        return f"{path}{n}"
-
 def combine():
         # 3개 모델 예측 결과 18 클래스로 변환
         # 파일 불러오기
@@ -136,7 +115,7 @@ def combine():
         df = pd.merge(df_,age, on='ImageID')
 
         for i in range(len(df)):
-            df.loc[i, 'ans'] = encode_multi_class(df.iloc[i]['ans_x'],df.iloc[i]['ans_y'],df.iloc[i]['ans'])
+            df.loc[i, 'ans'] = MaskBaseDataset.encode_multi_class(df.iloc[i]['ans_x'],df.iloc[i]['ans_y'],df.iloc[i]['ans'])
 
         #필요한 칼럼만 남기고 저장
         df = df[['ImageID','ans']]
