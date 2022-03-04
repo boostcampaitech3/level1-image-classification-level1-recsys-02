@@ -172,9 +172,7 @@ if __name__ == '__main__':
 
     data_dir = args.data_dir
     model_dir = os.path.join(args.model_dir, args.name)
-    output_dir = os.path.join(args.output_dir, args.name)
-
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = args.output_dir
 
     if args.model_ensemble:
         hardvoting(f'output/preds', 'preds')
