@@ -32,6 +32,7 @@ preprocessing 폴더 안의 retinaface.ipynb 파일을 실행하면 annotation �
 
 ### Result (작성 중)
 |Task|5-Fold|||
+|---|---|---|---|
 ||Resnet18|EfficientnetB1|EfficientnetB3|
 
 ### 실제 데이터 적용 예시
