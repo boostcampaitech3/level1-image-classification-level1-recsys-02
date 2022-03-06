@@ -39,7 +39,7 @@ Mask와 Age Task에는 가중치가 다른 Focal Loss를, Gender Task에는 Cros
 마지막으로 각 Task의 예측값들의 조합을 구해 18개 라벨로 변환하였습니다.  
 <img src="https://github.com/pilkyuchoi/images/blob/main/mask_classification/mask_classification_model.png">
 
-### Result (작성 중)
+### Result
 Model, Task에 따라 5-Fold Cross Validation 했을 때 나온 Validation Accuracy의 평균값입니다.  
 Data leakage를 방지하기 위해 동일한 사람에 대한 7장의 이미지들이 Train 데이터셋, Validation 데이터셋 둘 중 하나에만 포함되도록 하였습니다.
 |Model \ Task|Mask|Gender|Age|
