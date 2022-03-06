@@ -44,9 +44,9 @@ Model, Task에 따라 5-Fold Cross Validation 했을 때 나온 Validation Accur
 Data leakage를 방지하기 위해 동일한 사람에 대한 7장의 이미지들이 Train 데이터셋, Validation 데이터셋 둘 중 하나에만 포함되도록 하였습니다.
 |Model \ Task|Mask|Gender|Age|
 |---|---|---|---|
-|Resnet18(5-Fold)||||
-|EfficientnetB1(5-Fold)||||
-|EfficientnetB3(5-Fold)||||
+|Resnet18(5-Fold)|97.68|94.98|89.57|
+|EfficientnetB1(5-Fold)|97.67|96.51|90.16|
+|EfficientnetB3(5-Fold)|97.75|96.04|90.20|
 
 ### 시연 결과
 학습된 모델을 실제 데이터에 적용해볼 수 있습니다. 예측하고 싶은 이미지들이 들어있는 데이터 경로를 아래 명령어에 적어주면 됩니다.
